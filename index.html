@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Menu du soir</title>
+
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      margin: 0;
+      background: #f4f6f8;
+      color: #333;
+    }
+    header {
+      background: #1E3A8A;
+      color: white;
+      padding: 20px;
+      text-align: center;
+    }
+    h1 { margin: 0; }
+    .container {
+      padding: 16px;
+      max-width: 500px;
+      margin: auto;
+    }
+    .week {
+      text-align: center;
+      font-weight: bold;
+      margin-bottom: 16px;
+    }
+    .day {
+      background: white;
+      border-radius: 12px;
+      padding: 12px;
+      margin-bottom: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.08);
+    }
+    .day span {
+      font-weight: 600;
+    }
+    .buttons {
+      display: flex;
+      margin-top: 16px;
+    }
+    button {
+      flex: 1;
+      padding: 12px;
+      border: none;
+      border-radius: 10px;
+      font-size: 16px;
+      background: #1E3A8A;
+      color: white;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>🍽️ Menu du soir</h1>
+  <div>Famille Lafon</div>
+</header>
+
+<div class="container">
+  <div class="week" id="week"></div>
+  <div id="menu"></div>
+
+  <div class="buttons">
+    <button onclick="refreshWeek()">🔄 Actualiser</button>
+  </div>
+</div>
+
+<script>
+  const meals = [
+    "Pâtes",
+    "Riz + légumes",
+    "Poulet rôti",
+    "Omelette",
+    "Poisson",
+    "Tacos",
+    "Burger maison",
+    "Salade composée"
+  ];
+
+  function getMonday(date) {
+    const d = new Date(date);
+    const day = d.getDay() || 7;
+    if (day !== 1) d.setDate(d.getDate() - (day - 1));
+    return d;
+  }
+
+  function formatDate(d) {
+    return d.toLocaleDateString('fr-FR');
+  }
+
+  function getWeekNumber(d) {
+    const date = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+    const dayNum = date.getUTCDay() || 7;
+    date.setUTCDate(date.getUTCDate() + 4 - dayNum);
+    const yearStart = new Date(Date.UTC(date.getUTCFullYear(), 0, 1));
+    return Math.ceil((((date - yearStart) / 86400000) + 1) / 7);
+  }
+
+  function generateMenu() {
+    const menuDiv = document.getElementById('menu');
+    menuDiv.innerHTML = "";
+
+    const now = new Date();
+    const monday = getMonday(now);
+    const sunday = new Date(monday);
+    sunday.setDate(monday.getDate() + 6);
+
+    const weekNumber = getWeekNumber(monday);
+
+    document.getElementById('week').textContent =
+      `Semaine ${weekNumber} – du ${formatDate(monday)} au ${formatDate(sunday)}`;
+
+    const days = ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi", "Dimanche"];
+    const usedMeals = new Set();
+
+    days.forEach((day) => {
+      let meal;
+
+      if (day === "Dimanche" && weekNumber % 2 === 0) {
+        meal = "🍕 Pizza";
+      } else {
+        const availableMeals = meals.filter(m => !usedMeals.has(m));
+        meal = availableMeals[Math.floor(Math.random() * availableMeals.length)];
+      }
+
+      usedMeals.add(meal);
+
+      const div = document.createElement('div');
+      div.className = 'day';
+      div.innerHTML = `<span>${day}</span><div>${meal}</div>`;
+      menuDiv.appendChild(div);
+    });
+  }
+
+  function refreshWeek() {
+    generateMenu();
+  }
+
+  generateMenu();
+</script>
+
+</body>
+</html>
