@@ -52,6 +52,7 @@
       font-size: 16px;
       background: #1E3A8A;
       color: white;
+      cursor: pointer;
     }
   </style>
 </head>
@@ -103,22 +104,23 @@
     ];
 
     // ⭐ Repas incontournables (au moins 1 fois par semaine)
-    // ⚠️ Mets ici des repas qui existent aussi dans "meals"
+    // Mets ici des plats qui existent aussi dans "meals"
     const mandatoryMeals = [
-      // Exemple: "Lasagne"
+      "Pâtes"
     ];
 
     function getMonday(date) {
       const d = new Date(date);
-      const day = d.getDay() || 7;
+      const day = d.getDay() || 7; // dimanche=0 -> 7
       if (day !== 1) d.setDate(d.getDate() - (day - 1));
       return d;
     }
 
     function formatDate(d) {
-      return d.toLocaleDateString('fr-FR');
+      return d.toLocaleDateString("fr-FR");
     }
 
+    // Numéro de semaine ISO
     function getWeekNumber(d) {
       const date = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
       const dayNum = date.getUTCDay() || 7;
@@ -128,17 +130,23 @@
     }
 
     function generateMenu() {
-      const menuDiv = document.getElementById('menu');
+      const menuDiv = document.getElementById("menu");
       menuDiv.innerHTML = "";
 
       const now = new Date();
+
+      // ✅ À partir du samedi (6) et dimanche (0), on affiche la semaine suivante
+      if (now.getDay() === 6 || now.getDay() === 0) {
+        now.setDate(now.getDate() + 7);
+      }
+
       const monday = getMonday(now);
       const sunday = new Date(monday);
       sunday.setDate(monday.getDate() + 6);
 
       const weekNumber = getWeekNumber(monday);
 
-      document.getElementById('week').textContent =
+      document.getElementById("week").textContent =
         `Semaine ${weekNumber} – du ${formatDate(monday)} au ${formatDate(sunday)}`;
 
       const days = ["Lundi","Mardi","Mercredi","Jeudi","Vendredi","Samedi","Dimanche"];
@@ -146,7 +154,7 @@
       const menu = {};
       const availableDays = [...days];
 
-      // 1) Placer les repas incontournables (si présents dans meals)
+      // 1) Placer les repas incontournables (au moins une fois par semaine)
       mandatoryMeals
         .filter(m => meals.includes(m))
         .forEach(meal => {
@@ -156,27 +164,27 @@
           menu[day] = meal;
         });
 
-      // 2) Pizza un dimanche sur deux (si dimanche libre)
+      // 2) 🍕 Pizza un dimanche sur deux (semaines paires), si dimanche libre
       if (weekNumber % 2 === 0 && !menu["Dimanche"]) {
         menu["Dimanche"] = "🍕 Pizza";
         const idx = availableDays.indexOf("Dimanche");
         if (idx > -1) availableDays.splice(idx, 1);
       }
 
-      // 3) Compléter les autres jours sans doublons si possible
+      // 3) Compléter les autres jours (sans doublons si possible)
       availableDays.forEach(day => {
         const usedMeals = Object.values(menu);
         const possibleMeals = meals.filter(m => !usedMeals.includes(m));
 
-        // si on a épuisé les repas uniques, on autorise les répétitions
+        // Si on a épuisé les plats uniques, on autorise les répétitions
         const pool = possibleMeals.length > 0 ? possibleMeals : meals;
         menu[day] = pool[Math.floor(Math.random() * pool.length)];
       });
 
       // 4) Affichage dans l'ordre
       days.forEach(day => {
-        const div = document.createElement('div');
-        div.className = 'day';
+        const div = document.createElement("div");
+        div.className = "day";
         div.innerHTML = `<span>${day}</span><div>${menu[day]}</div>`;
         menuDiv.appendChild(div);
       });
@@ -190,3 +198,4 @@
   </script>
 </body>
 </html>
+
