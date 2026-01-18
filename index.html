@@ -1,88 +1,36 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Menu du soir</title>
-
-  <style>
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-      margin: 0;
-      background: #f4f6f8;
-      color: #333;
-    }
-    header {
-      background: #1E3A8A;
-      color: white;
-      padding: 20px;
-      text-align: center;
-    }
-    h1 { margin: 0; }
-    .container {
-      padding: 16px;
-      max-width: 500px;
-      margin: auto;
-    }
-    .week {
-      text-align: center;
-      font-weight: bold;
-      margin-bottom: 16px;
-    }
-    .day {
-      background: white;
-      border-radius: 12px;
-      padding: 12px;
-      margin-bottom: 10px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.08);
-    }
-    .day span {
-      font-weight: 600;
-    }
-    .buttons {
-      display: flex;
-      margin-top: 16px;
-    }
-    button {
-      flex: 1;
-      padding: 12px;
-      border: none;
-      border-radius: 10px;
-      font-size: 16px;
-      background: #1E3A8A;
-      color: white;
-    }
-  </style>
-</head>
-<body>
-
-<header>
-  <h1>🍽️ Menu du soir</h1>
-  <div>Famille Lafon</div>
-</header>
-
-<div class="container">
-  <div class="week" id="week"></div>
-  <div id="menu"></div>
-
-  <div class="buttons">
-    <button onclick="refreshWeek()">🔄 Actualiser</button>
-  </div>
-</div>
-
 <script>
   const meals = [
-    "Pâtes",
-    "Riz + légumes",
-    "Poulet rôti",
-    "Omelette",
-    "Poisson",
-    "Tacos",
-    "Burger maison",
-    "Salade composée"
+    "Curry chicken",
+    "Gratin courgettes",
+    "Gratin patates",
+    "Lasagne",
+    "Sommerrolle",
+    "Galettes",
+    "Croque monsieur",
+    "Ratatouille",
+    "Risotto",
+    "Poulet frite",
+    "Légumes au four",
+    "Soupe légume",
+    "Soupe Pho",
+    "Salade Vietnamienne",
+    "Burrito",
+    "Tatar saumon",
+    "Tatar thon",
+    "Gartin broccoli",
+    "Rice bowl saumon",
+    "Rice bowl poulet",
+    "Tomate farcies",
+    "Poisson mémé",
+    "Patates à la pépé",
+    "Salade composée",
+    "Soupe concombre",
+    "Caleloni"
+  ];
+
+  // ⭐ Repas incontournables (au moins 1 fois par semaine)
+  const mandatoryMeals = [
+    "Pâtes"
   ];
 
   function getMonday(date) {
@@ -118,24 +66,45 @@
     document.getElementById('week').textContent =
       `Semaine ${weekNumber} – du ${formatDate(monday)} au ${formatDate(sunday)}`;
 
-    const days = ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi", "Dimanche"];
-    const usedMeals = new Set();
+    const days = [
+      "Lundi",
+      "Mardi",
+      "Mercredi",
+      "Jeudi",
+      "Vendredi",
+      "Samedi",
+      "Dimanche"
+    ];
 
-    days.forEach((day) => {
-      let meal;
+    const menu = {};
+    const availableDays = [...days];
 
-      if (day === "Dimanche" && weekNumber % 2 === 0) {
-        meal = "🍕 Pizza";
-      } else {
-        const availableMeals = meals.filter(m => !usedMeals.has(m));
-        meal = availableMeals[Math.floor(Math.random() * availableMeals.length)];
-      }
+    // 1️⃣ Placer les repas incontournables
+    mandatoryMeals.forEach(meal => {
+      const randomIndex = Math.floor(Math.random() * availableDays.length);
+      const day = availableDays.splice(randomIndex, 1)[0];
+      menu[day] = meal;
+    });
 
-      usedMeals.add(meal);
+    // 2️⃣ Pizza un dimanche sur deux (si le dimanche est libre)
+    if (weekNumber % 2 === 0 && !menu["Dimanche"]) {
+      menu["Dimanche"] = "🍕 Pizza";
+      const index = availableDays.indexOf("Dimanche");
+      if (index > -1) availableDays.splice(index, 1);
+    }
 
+    // 3️⃣ Compléter les autres jours
+    availableDays.forEach(day => {
+      const usedMeals = Object.values(menu);
+      const possibleMeals = meals.filter(m => !usedMeals.includes(m));
+      menu[day] = possibleMeals[Math.floor(Math.random() * possibleMeals.length)];
+    });
+
+    // 4️⃣ Affichage
+    days.forEach(day => {
       const div = document.createElement('div');
       div.className = 'day';
-      div.innerHTML = `<span>${day}</span><div>${meal}</div>`;
+      div.innerHTML = `<span>${day}</span><div>${menu[day]}</div>`;
       menuDiv.appendChild(div);
     });
   }
@@ -147,5 +116,3 @@
   generateMenu();
 </script>
 
-</body>
-</html>
