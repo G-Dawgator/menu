@@ -1,118 +1,192 @@
-<script>
-  const meals = [
-    "Curry chicken",
-    "Gratin courgettes",
-    "Gratin patates",
-    "Lasagne",
-    "Sommerrolle",
-    "Galettes",
-    "Croque monsieur",
-    "Ratatouille",
-    "Risotto",
-    "Poulet frite",
-    "Légumes au four",
-    "Soupe légume",
-    "Soupe Pho",
-    "Salade Vietnamienne",
-    "Burrito",
-    "Tatar saumon",
-    "Tatar thon",
-    "Gartin broccoli",
-    "Rice bowl saumon",
-    "Rice bowl poulet",
-    "Tomate farcies",
-    "Poisson mémé",
-    "Patates à la pépé",
-    "Salade composée",
-    "Soupe concombre",
-    "Caleloni"
-  ];
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Menu du soir</title>
 
-  // ⭐ Repas incontournables (au moins 1 fois par semaine)
-  const mandatoryMeals = [
-    "Pâtes"
-  ];
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      margin: 0;
+      background: #f4f6f8;
+      color: #333;
+    }
+    header {
+      background: #1E3A8A;
+      color: white;
+      padding: 20px;
+      text-align: center;
+    }
+    h1 { margin: 0; }
+    .container {
+      padding: 16px;
+      max-width: 520px;
+      margin: auto;
+    }
+    .week {
+      text-align: center;
+      font-weight: bold;
+      margin-bottom: 16px;
+    }
+    .day {
+      background: white;
+      border-radius: 12px;
+      padding: 12px;
+      margin-bottom: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.08);
+    }
+    .day span { font-weight: 600; }
+    .buttons {
+      display: flex;
+      margin-top: 16px;
+    }
+    button {
+      flex: 1;
+      padding: 12px;
+      border: none;
+      border-radius: 10px;
+      font-size: 16px;
+      background: #1E3A8A;
+      color: white;
+    }
+  </style>
+</head>
 
-  function getMonday(date) {
-    const d = new Date(date);
-    const day = d.getDay() || 7;
-    if (day !== 1) d.setDate(d.getDate() - (day - 1));
-    return d;
-  }
+<body>
+  <header>
+    <h1>🍽️ Menu du soir</h1>
+    <div>Famille Lafon</div>
+  </header>
 
-  function formatDate(d) {
-    return d.toLocaleDateString('fr-FR');
-  }
+  <div class="container">
+    <div class="week" id="week"></div>
+    <div id="menu"></div>
 
-  function getWeekNumber(d) {
-    const date = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
-    const dayNum = date.getUTCDay() || 7;
-    date.setUTCDate(date.getUTCDate() + 4 - dayNum);
-    const yearStart = new Date(Date.UTC(date.getUTCFullYear(), 0, 1));
-    return Math.ceil((((date - yearStart) / 86400000) + 1) / 7);
-  }
+    <div class="buttons">
+      <button onclick="refreshWeek()">🔄 Actualiser</button>
+    </div>
+  </div>
 
-  function generateMenu() {
-    const menuDiv = document.getElementById('menu');
-    menuDiv.innerHTML = "";
-
-    const now = new Date();
-    const monday = getMonday(now);
-    const sunday = new Date(monday);
-    sunday.setDate(monday.getDate() + 6);
-
-    const weekNumber = getWeekNumber(monday);
-
-    document.getElementById('week').textContent =
-      `Semaine ${weekNumber} – du ${formatDate(monday)} au ${formatDate(sunday)}`;
-
-    const days = [
-      "Lundi",
-      "Mardi",
-      "Mercredi",
-      "Jeudi",
-      "Vendredi",
-      "Samedi",
-      "Dimanche"
+  <script>
+    const meals = [
+      "Curry chicken",
+      "Gratin courgettes",
+      "Gratin patates",
+      "Lasagne",
+      "Sommerrolle",
+      "Galettes",
+      "Croque monsieur",
+      "Ratatouille",
+      "Risotto",
+      "Poulet frite",
+      "Légumes au four",
+      "Soupe légume",
+      "Soupe Pho",
+      "Salade Vietnamienne",
+      "Burrito",
+      "Tatar saumon",
+      "Tatar thon",
+      "Gartin broccoli",
+      "Rice bowl saumon",
+      "Rice bowl poulet",
+      "Tomate farcies",
+      "Poisson mémé",
+      "Patates à la pépé",
+      "Salade composée",
+      "Soupe concombre",
+      "Caleloni",
+      "Pâtes"
     ];
 
-    const menu = {};
-    const availableDays = [...days];
+    // ⭐ Repas incontournables (au moins 1 fois par semaine)
+    // ⚠️ Mets ici des repas qui existent aussi dans "meals"
+    const mandatoryMeals = [
+      // Exemple: "Lasagne"
+    ];
 
-    // 1️⃣ Placer les repas incontournables
-    mandatoryMeals.forEach(meal => {
-      const randomIndex = Math.floor(Math.random() * availableDays.length);
-      const day = availableDays.splice(randomIndex, 1)[0];
-      menu[day] = meal;
-    });
-
-    // 2️⃣ Pizza un dimanche sur deux (si le dimanche est libre)
-    if (weekNumber % 2 === 0 && !menu["Dimanche"]) {
-      menu["Dimanche"] = "🍕 Pizza";
-      const index = availableDays.indexOf("Dimanche");
-      if (index > -1) availableDays.splice(index, 1);
+    function getMonday(date) {
+      const d = new Date(date);
+      const day = d.getDay() || 7;
+      if (day !== 1) d.setDate(d.getDate() - (day - 1));
+      return d;
     }
 
-    // 3️⃣ Compléter les autres jours
-    availableDays.forEach(day => {
-      const usedMeals = Object.values(menu);
-      const possibleMeals = meals.filter(m => !usedMeals.includes(m));
-      menu[day] = possibleMeals[Math.floor(Math.random() * possibleMeals.length)];
-    });
+    function formatDate(d) {
+      return d.toLocaleDateString('fr-FR');
+    }
 
-    // 4️⃣ Affichage
-    days.forEach(day => {
-      const div = document.createElement('div');
-      div.className = 'day';
-      div.innerHTML = `<span>${day}</span><div>${menu[day]}</div>`;
-      menuDiv.appendChild(div);
-    });
-  }
+    function getWeekNumber(d) {
+      const date = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+      const dayNum = date.getUTCDay() || 7;
+      date.setUTCDate(date.getUTCDate() + 4 - dayNum);
+      const yearStart = new Date(Date.UTC(date.getUTCFullYear(), 0, 1));
+      return Math.ceil((((date - yearStart) / 86400000) + 1) / 7);
+    }
 
-  function refreshWeek() {
+    function generateMenu() {
+      const menuDiv = document.getElementById('menu');
+      menuDiv.innerHTML = "";
+
+      const now = new Date();
+      const monday = getMonday(now);
+      const sunday = new Date(monday);
+      sunday.setDate(monday.getDate() + 6);
+
+      const weekNumber = getWeekNumber(monday);
+
+      document.getElementById('week').textContent =
+        `Semaine ${weekNumber} – du ${formatDate(monday)} au ${formatDate(sunday)}`;
+
+      const days = ["Lundi","Mardi","Mercredi","Jeudi","Vendredi","Samedi","Dimanche"];
+
+      const menu = {};
+      const availableDays = [...days];
+
+      // 1) Placer les repas incontournables (si présents dans meals)
+      mandatoryMeals
+        .filter(m => meals.includes(m))
+        .forEach(meal => {
+          if (availableDays.length === 0) return;
+          const randomIndex = Math.floor(Math.random() * availableDays.length);
+          const day = availableDays.splice(randomIndex, 1)[0];
+          menu[day] = meal;
+        });
+
+      // 2) Pizza un dimanche sur deux (si dimanche libre)
+      if (weekNumber % 2 === 0 && !menu["Dimanche"]) {
+        menu["Dimanche"] = "🍕 Pizza";
+        const idx = availableDays.indexOf("Dimanche");
+        if (idx > -1) availableDays.splice(idx, 1);
+      }
+
+      // 3) Compléter les autres jours sans doublons si possible
+      availableDays.forEach(day => {
+        const usedMeals = Object.values(menu);
+        const possibleMeals = meals.filter(m => !usedMeals.includes(m));
+
+        // si on a épuisé les repas uniques, on autorise les répétitions
+        const pool = possibleMeals.length > 0 ? possibleMeals : meals;
+        menu[day] = pool[Math.floor(Math.random() * pool.length)];
+      });
+
+      // 4) Affichage dans l'ordre
+      days.forEach(day => {
+        const div = document.createElement('div');
+        div.className = 'day';
+        div.innerHTML = `<span>${day}</span><div>${menu[day]}</div>`;
+        menuDiv.appendChild(div);
+      });
+    }
+
+    function refreshWeek() {
+      generateMenu();
+    }
+
     generateMenu();
-  }
-
-  generateMenu();
-</script>
-
+  </script>
+</body>
+</html>
